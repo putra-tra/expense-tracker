@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Expense Tracker - Kelola Pengeluaran Harian</title>
+    <style>
+        :root {
+            --primary: #0a0e29;
+            --secondary: #1a1f4b;
+            --accent: #4a3fe4;
+            --accent-light: #6a5fe6;
+            --text: #ffffff;
+            --text-secondary: #b0b0d0;
+            --success: #00c853;
+            --danger: #ff1744;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary);
+            color: var(--text);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(74, 63, 228, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(106, 95, 230, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(10, 14, 41, 0) 0%, var(--primary) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .planet {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4a3fe4, #6a5fe6);
+            border-radius: 50%;
+            margin-right: 15px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(74, 63, 228, 0.5);
+        }
+        
+        .planet::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            width: 15px;
+            height: 15px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #6a5fe6, #9d94ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .auth-section {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent-light);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--accent);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #ff4569;
+        }
+        
+        .admin-panel {
+            background-color: var(--secondary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(74, 63, 228, 0.2);
+        }
+        
+        .viewer-panel {
+            background-color: var(--secondary);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(74, 63, 228, 0.2);
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: var(--text);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2 i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(10, 14, 41, 0.5);
+            border: 1px solid rgba(74, 63, 228, 0.3);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(74, 63, 228, 0.2);
+        }
+        
+        .btn-large {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        .expense-item {
+            transition: all 0.3s;
+        }
+        
+        .expense-item:hover {
+            background-color: rgba(74, 63, 228, 0.1);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            color: var(--accent);
+        }
+        
+        .total {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(74, 63, 228, 0.1);
+            border-radius: 8px;
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: var(--success);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .pin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .pin-form {
+            background-color: var(--secondary);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        
+        .pin-form h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .pin-input {
+            font-size: 1.5rem;
+            letter-spacing: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .pin-hint {
+            margin-top: 15px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .auth-section {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
+            }
+            
+            .admin-panel, .viewer-panel {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 10px 5px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="planet"></div>
+                <h1>Space Expense Tracker</h1>
+            </div>
+            <p class="subtitle">expense tracker output</p>
+            <div class="auth-section">
+                <button class="btn btn-outline" id="adminBtn">Mode Operator</button>
+                <button class="btn btn-danger hidden" id="viewerBtn">Mode Penampil</button>
+            </div>
+        </header>
+        
+        <main>
+            <section class="admin-panel hidden" id="adminPanel">
+                <h2><i>🚀</i> Panel Operator - Kelola Pengeluaran</h2>
+                
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label for="itemName">Nama Barang</label>
+                        <input type="text" id="itemName" placeholder="Masukkan nama barang" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemPrice">Harga (Rp)</label>
+                        <input type="number" id="itemPrice" placeholder="Masukkan harga" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemCategory">Kategori</label>
+                        <select id="itemCategory" required>
+                            <option value="">Pilih kategori</option>
+                            <option value="Makanan & Minuman">Makanan & Minuman</option>
+                            <option value="Transportasi">Transportasi</option>
+                            <option value="Belanja">Belanja</option>
+                            <option value="Hiburan">Hiburan</option>
+                            <option value="Kesehatan">Kesehatan</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemDate">Tanggal Pembelian</label>
+                        <input type="date" id="itemDate" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-large">Tambah Pengeluaran</button>
+                </form>
+                
+                <div class="expense-list">
+                    <h2><i>📊</i> Daftar Pengeluaran</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Kategori</th>
+                                <th>Harga</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseTableBody">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                    
+                    <div class="total">
+                        Total Pengeluaran: <span id="totalAmount">Rp 0</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="viewer-panel" id="viewerPanel">
+                <h2><i>👁️</i> Lihat Pengeluaran</h2>
+                
+                <div class="expense-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Kategori</th>
+                                <th>Harga</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="viewerTableBody">
+                            <!-- Data akan diisi oleh JavaScript -->
+                        </tbody>
+                    </table>
+                    
+                    <div class="total">
+                        Total Pengeluaran: <span id="viewerTotalAmount">Rp 0</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <div class="pin-modal hidden" id="pinModal">
+            <div class="pin-form">
+                <h2><i>🔐</i> Masukkan PIN Operator</h2>
+                <form id="pinForm">
+                    <div class="form-group">
+                        <input type="password" id="pinInput" class="pin-input" placeholder="****" maxlength="4" required>
+                    </div>
+                    <button type="submit" class="btn btn-large" style="width: 100%;">Masuk</button>
+                </form>
+                <p class="pin-hint">hanya operator yang dapat mengubah</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Space Expense Tracker - Hanya operator yang dapat mengubah data</p>
+        </footer>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // Inisialisasi data
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let isAdminMode = false;
+        
+        // PIN Operator (bisa diganti sesuai keinginan)
+        const OPERATOR_PIN = "1234";
+        
+        // Elemen DOM
+        const adminPanel = document.getElementById('adminPanel');
+        const viewerPanel = document.getElementById('viewerPanel');
+        const adminBtn = document.getElementById('adminBtn');
+        const viewerBtn = document.getElementById('viewerBtn');
+        const pinModal = document.getElementById('pinModal');
+        const pinForm = document.getElementById('pinForm');
+        const pinInput = document.getElementById('pinInput');
+        const expenseForm = document.getElementById('expenseForm');
+        const expenseTableBody = document.getElementById('expenseTableBody');
+        const viewerTableBody = document.getElementById('viewerTableBody');
+        const totalAmount = document.getElementById('totalAmount');
+        const viewerTotalAmount = document.getElementById('viewerTotalAmount');
+        const notification = document.getElementById('notification');
+        
+        // Buat bintang-bintang
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 150;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Posisi acak
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                
+                // Ukuran acak
+                const size = Math.random() * 3;
+                
+                // Animasi delay acak
+                const delay = Math.random() * 5;
+                
+                star.style.left = `${left}%`;
+                star.style.top = `${top}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.animationDelay = `${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // Tampilkan notifikasi
+        function showNotification(message, isSuccess = true) {
+            notification.textContent = message;
+            notification.style.backgroundColor = isSuccess ? 'var(--success)' : 'var(--danger)';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Format angka ke Rupiah
+        function formatRupiah(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        // Hitung total pengeluaran
+        function calculateTotal() {
+            const total = expenses.reduce((sum, expense) => sum + expense.price, 0);
+            totalAmount.textContent = formatRupiah(total);
+            viewerTotalAmount.textContent = formatRupiah(total);
+        }
+        
+        // Render tabel untuk admin
+        function renderExpenseTable() {
+            expenseTableBody.innerHTML = '';
+            
+            if (expenses.length === 0) {
+                expenseTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 30px;">
+                            Belum ada data pengeluaran. Tambahkan data pertama Anda!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            expenses.forEach((expense, index) => {
+                const row = document.createElement('tr');
+                row.classList.add('expense-item');
+                
+                row.innerHTML = `
+                    <td>${expense.name}</td>
+                    <td>${expense.category}</td>
+                    <td>${formatRupiah(expense.price)}</td>
+                    <td>${expense.date}</td>
+                    <td class="actions">
+                        <button class="action-btn edit-btn" data-index="${index}">✏️</button>
+                        <button class="action-btn delete-btn" data-index="${index}">🗑️</button>
+                    </td>
+                `;
+                
+                expenseTableBody.appendChild(row);
+            });
+            
+            // Tambahkan event listener untuk tombol edit dan hapus
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    editExpense(index);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    deleteExpense(index);
+                });
+            });
+        }
+        
+        // Render tabel untuk viewer
+        function renderViewerTable() {
+            viewerTableBody.innerHTML = '';
+            
+            if (expenses.length === 0) {
+                viewerTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 30px;">
+                            Belum ada data pengeluaran yang ditampilkan.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            expenses.forEach(expense => {
+                const row = document.createElement('tr');
+                row.classList.add('expense-item');
+                
+                row.innerHTML = `
+                    <td>${expense.name}</td>
+                    <td>${expense.category}</td>
+                    <td>${formatRupiah(expense.price)}</td>
+                    <td>${expense.date}</td>
+                `;
+                
+                viewerTableBody.appendChild(row);
+            });
+        }
+        
+        // Tambah pengeluaran
+        function addExpense(name, price, category, date) {
+            const newExpense = {
+                id: Date.now(),
+                name,
+                price: parseInt(price),
+                category,
+                date
+            };
+            
+            expenses.push(newExpense);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            
+            renderExpenseTable();
+            renderViewerTable();
+            calculateTotal();
+            
+            showNotification('Pengeluaran berhasil ditambahkan!');
+        }
+        
+        // Edit pengeluaran
+        function editExpense(index) {
+            const expense = expenses[index];
+            
+            // Isi form dengan data yang akan diedit
+            document.getElementById('itemName').value = expense.name;
+            document.getElementById('itemPrice').value = expense.price;
+            document.getElementById('itemCategory').value = expense.category;
+            document.getElementById('itemDate').value = expense.date;
+            
+            // Hapus data lama
+            expenses.splice(index, 1);
+            
+            renderExpenseTable();
+            renderViewerTable();
+            calculateTotal();
+            
+            showNotification('Siap untuk mengedit pengeluaran!');
+        }
+        
+        // Hapus pengeluaran
+        function deleteExpense(index) {
+            if (confirm('Apakah Anda yakin ingin menghapus pengeluaran ini?')) {
+                expenses.splice(index, 1);
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                
+                renderExpenseTable();
+                renderViewerTable();
+                calculateTotal();
+                
+                showNotification('Pengeluaran berhasil dihapus!');
+            }
+        }
+        
+        // Masuk ke mode operator
+        function enterAdminMode() {
+            pinModal.classList.remove('hidden');
+            pinInput.focus();
+        }
+        
+        // Masuk ke mode penampil
+        function enterViewerMode() {
+            isAdminMode = false;
+            adminPanel.classList.add('hidden');
+            viewerPanel.classList.remove('hidden');
+            adminBtn.classList.remove('hidden');
+            viewerBtn.classList.add('hidden');
+            
+            showNotification('Berhasil masuk mode penampil');
+        }
+        
+        // Verifikasi PIN
+        function verifyPin(pin) {
+            if (pin === OPERATOR_PIN) {
+                isAdminMode = true;
+                adminPanel.classList.remove('hidden');
+                viewerPanel.classList.add('hidden');
+                adminBtn.classList.add('hidden');
+                viewerBtn.classList.remove('hidden');
+                pinModal.classList.add('hidden');
+                pinForm.reset();
+                
+                showNotification('Berhasil masuk mode operator!');
+                return true;
+            } else {
+                showNotification('PIN salah! Coba lagi.', false);
+                pinInput.focus();
+                pinInput.select();
+                return false;
+            }
+        }
+        
+        // Event Listeners
+        adminBtn.addEventListener('click', enterAdminMode);
+        
+        viewerBtn.addEventListener('click', enterViewerMode);
+        
+        pinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pin = pinInput.value;
+            verifyPin(pin);
+        });
+        
+        expenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('itemName').value;
+            const price = document.getElementById('itemPrice').value;
+            const category = document.getElementById('itemCategory').value;
+            const date = document.getElementById('itemDate').value;
+            
+            addExpense(name, price, category, date);
+            
+            // Reset form
+            expenseForm.reset();
+            document.getElementById('itemDate').valueAsDate = new Date();
+        });
+        
+        // Tutup modal PIN ketika klik di luar modal
+        pinModal.addEventListener('click', (e) => {
+            if (e.target === pinModal) {
+                pinModal.classList.add('hidden');
+                pinForm.reset();
+            }
+        });
+        
+        // Tutup modal PIN dengan tombol ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !pinModal.classList.contains('hidden')) {
+                pinModal.classList.add('hidden');
+                pinForm.reset();
+            }
+        });
+        
+        // Inisialisasi
+        function init() {
+            createStars();
+            renderExpenseTable();
+            renderViewerTable();
+            calculateTotal();
+            
+            // Set tanggal hari ini sebagai default
+            const today = new Date();
+            document.getElementById('itemDate').valueAsDate = today;
+            
+            // Format tanggal untuk placeholder
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('itemDate').value = formattedDate;
+            
+            // Mulai dengan mode penampil
+            enterViewerMode();
+        }
+        
+        // Jalankan inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
